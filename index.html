@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Feedback Form</title>
+  <style>
+    body {
+      font-family: Arial;
+      display: flex;
+      justify-content: center;
+      margin-top: 50px;
+    }
+    .container {
+      width: 320px;
+      padding: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+    input, textarea {
+      width: 100%;
+      margin: 10px 0;
+      padding: 8px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      cursor: pointer;
+    }
+    .message {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Feedback Form</h2>
+
+  <input type="text" id="name" placeholder="Enter Name">
+  <input type="email" id="email" placeholder="Enter Email">
+  <textarea id="feedback" placeholder="Enter Feedback"></textarea>
+
+  <button id="submitBtn" onclick="submitFeedback()">Submit</button>
+
+  <div class="message" id="message"></div>
+</div>
+
+<script>
+async function submitFeedback() {
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const feedback = document.getElementById("feedback").value.trim();
+  const message = document.getElementById("message");
+  const btn = document.getElementById("submitBtn");
+
+  if (!name || !email || !feedback) {
+    message.style.color = "red";
+    message.innerText = "All fields are required";
+    return;
+  }
+
+  btn.disabled = true;
+  message.innerText = "Submitting...";
+
+  try {
+    const res = await fetch("http://localhost:5000/feedback", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ name, email, feedback })
+    });
+
+    const data = await res.json();
+
+    if (res.ok) {
+      message.style.color = "green";
+      message.innerText = data.message;
+
+      document.getElementById("name").value = "";
+      document.getElementById("email").value = "";
+      document.getElementById("feedback").value = "";
+    } else {
+      message.style.color = "red";
+      message.innerText = data.message;
+    }
+
+  } catch (err) {
+    message.style.color = "red";
+    message.innerText = "Server not reachable";
+  }
+
+  btn.disabled = false;
+}
+</script>
+
+</body>
+</html>
